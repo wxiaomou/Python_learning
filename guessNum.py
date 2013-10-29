@@ -31,7 +31,7 @@ def range100():
     global attempt_num
     global range
     range = 100
-    secret_num = random.randrange(0, 99)
+    secret_num = random.randrange(0, 100)
     attempt_num = 7
     print ""
     print "Range is 100, Start!"
@@ -44,8 +44,8 @@ def range1000():
     global attempt_num
     global range
     range = 1000
-    secret_num = random.randrange(0, 999)
-    attempt_num = 9
+    secret_num = random.randrange(0, 1000)
+    attempt_num = 10
     print ""
     print "Range is 1000, Start!"
   #  print secret_num
