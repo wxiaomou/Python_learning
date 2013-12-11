@@ -271,11 +271,14 @@ def draw(canvas):
         #draw the rock group and update
         process_sprite_group(rock_group, canvas)
         process_sprite_group(missile_group, canvas)
-        process_sprite_group(explosion_group, canvas)
+        #process_sprite_group(explosion_group, canvas)
         if group_collide(rock_group, my_ship):
             lives -= 1;
         score += group_group_collide(missile_group, rock_group)
-    
+        
+        # Should Process the explosion after the group collide because this func may update the explosion set
+        process_sprite_group(explosion_group, canvas)
+        
         # if lives <= 0 restart
         if lives <= 0:
             lives = 3
@@ -284,6 +287,9 @@ def draw(canvas):
             missile_group = set([])
             rock_group = set([])
             soundtrack.rewind()
+            # Process all left explosion
+            while len(explosion_group) > 0:
+                process_sprite_group(explosion_group, canvas)
         
     # draw splash screen if not started
     if not started:
