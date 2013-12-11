@@ -107,10 +107,11 @@ class Ship:
     def shoot(self):
         global a_missile
         missile_vel = list(self.vel)
-        missile_vel[0] += self.forward_vec[0] * 10
-        missile_vel[1] += self.forward_vec[1] * 10
+        missile_pos = [self.pos[0] + self.radius * self.forward_vec[0], self.pos[1] + self.radius * self.forward_vec[1]]
+        missile_vel[0] += self.forward_vec[0] * 6
+        missile_vel[1] += self.forward_vec[1] * 6
 
-        a_missile = Sprite(self.pos, missile_vel, 0, 0, missile_image, missile_info, missile_sound)
+        a_missile = Sprite(missile_pos, missile_vel, 0, 0, missile_image, missile_info, missile_sound)
         
     def thrusters(self, on):
         if on:
@@ -129,27 +130,25 @@ class Ship:
             self._clockwise = True
         else:
             self._clockwise = False
-            
-    def rotate(self, clockwise):
-        if (clockwise):
-            self.angle += 0.1
-        else:
-            self.angle -= 0.1
-        self.angle %= (2 * math.pi)
+    
+    def increment_angle_vel(self):
+        self.angle_vel += 0.1
+    
+    def decrement_angle_vel(self):
+        self.angle_vel -= 0.1
             
     def update(self):
         self.pos[0] = (self.pos[0] + self.vel[0]) % WIDTH
         self.pos[1] = (self.pos[1] + self.vel[1]) % HEIGHT
-        
-        if self._rotate:
-            self.rotate(self._clockwise)
             
         self.forward_vec = angle_to_vector(self.angle)
         if self._thrusters:
             self.vel[0] += self.forward_vec[0] * 0.1
             self.vel[1] += self.forward_vec[1] * 0.1
-        self.vel[0] *= 0.999
-        self.vel[1] *= 0.999    
+        self.vel[0] *= 0.99
+        self.vel[1] *= 0.99    
+        
+        self.angle += self.angle_vel;
     
 # Sprite class
 class Sprite:
@@ -219,33 +218,31 @@ def rock_spawner():
     a_rock = Sprite(rock_pos, rock_vel, 0, rock_ang_vel, asteroid_image, asteroid_info)
 
 def key_handler(key):
-    dirc = {"left": False,
-            "right": True}
-    
-    for i in dirc:
-        if key == simplegui.KEY_MAP[i]:
-            my_ship.change_dir(True, dirc[i])
-            
-    if key == simplegui.KEY_MAP["up"]:
+    if key == simplegui.KEY_MAP['left']:
+        my_ship.decrement_angle_vel()
+    elif key == simplegui.KEY_MAP['right']:
+        my_ship.increment_angle_vel()
+    elif key == simplegui.KEY_MAP["up"]:
         my_ship.thrusters(True)
         ship_thrust_sound.play()
-        
-    if key == simplegui.KEY_MAP["space"]:
+    elif key == simplegui.KEY_MAP["space"]:
         my_ship.shoot()
         
 def key_up_handler(key):
-    if key == simplegui.KEY_MAP["up"]:
+    if key == simplegui.KEY_MAP['left']:
+        my_ship.increment_angle_vel()
+    elif key == simplegui.KEY_MAP['right']:
+        my_ship.decrement_angle_vel()  
+    elif key == simplegui.KEY_MAP["up"]:
         my_ship.thrusters(False)
         ship_thrust_sound.rewind()
-    
-    if key == simplegui.KEY_MAP["left"] or key == simplegui.KEY_MAP["right"]:
-        my_ship.change_dir(False, None)
+
         
 # initialize frame
 frame = simplegui.create_frame("Asteroids", WIDTH, HEIGHT)
 
 # initialize ship and two sprites
-my_ship = Ship([WIDTH / 2, HEIGHT / 2], [1, 1], 0, ship_image, ship_info)
+my_ship = Ship([WIDTH / 2, HEIGHT / 2], [0, 0], 0, ship_image, ship_info)
 a_rock = Sprite([WIDTH / 3, HEIGHT / 3], [1, 1], 0, 0.1, asteroid_image, asteroid_info)
 a_missile = Sprite([2 * WIDTH / 3, 2 * HEIGHT / 3], [-1,1], 0, 0, missile_image, missile_info, missile_sound)
 
